@@ -1,0 +1,45 @@
+"use client";
+
+import PostCard from "@/components/common/PostCard";
+import { useGetSearchPost } from "@/hooks/api/useGetSearchPost";
+import { useURLSearchParams } from "@/hooks/common/useSearchParams";
+import PostSkeletons from "@/components/common/PostSkeletons";
+
+const SearchPage = () => {
+  const { getURLSearchParams } = useURLSearchParams();
+  const queryParams = getURLSearchParams();
+  const searchTerm = queryParams.q ?? "";
+
+  const { data, isPending } = useGetSearchPost(searchTerm);
+
+  return (
+    <div className="container max-w-3xl mx-auto pb-10">
+      <div className="flex flex-col">
+        {isPending ||
+          (!data && (
+            <div className="space-y-4 px-4 sm:px-0">
+              <PostSkeletons />
+            </div>
+          ))}
+
+        {!isPending && (!data?.posts || data.posts.length === 0) && (
+          <div className="text-center py-20 text-muted-foreground">
+            <p className="text-lg">
+              No results found for &quot;{searchTerm}&quot;
+            </p>
+            <p className="text-sm">Try adjusting your search terms.</p>
+          </div>
+        )}
+
+        {!isPending &&
+          data?.posts &&
+          data.posts.length !== 0 &&
+          data?.posts?.map((post: any) => (
+            <PostCard key={post.id} post={post} />
+          ))}
+      </div>
+    </div>
+  );
+};
+
+export default SearchPage;
